@@ -3,6 +3,7 @@ package com.example.weather.service;
 import com.example.weather.model.Root;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -21,13 +22,16 @@ public class WeatherService {
 
 	private final ConcurrentHashMap<String, CachedWeather> cache = new ConcurrentHashMap<>();
 
+	@Autowired
+	private RestTemplate restTemplate;
+
 	@Value("${appId}")
 	private String appId;
 
 	@Value("${url.weather}")
 	private String weatherUrl;
 
-	public Root getWeather(double lat, double lon, RestTemplate restTemplate) {
+	public Root getWeather(double lat, double lon) {
 		String key = lat + ":" + lon;
 		CachedWeather cached = cache.get(key);
 
