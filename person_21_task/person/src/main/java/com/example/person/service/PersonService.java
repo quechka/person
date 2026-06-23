@@ -46,6 +46,13 @@ public class PersonService {
 		return repository.save(person);
 	}
 
+	public Person addPerson(Person person) {
+		if (person.getId() != 0 && repository.existsById(person.getId())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Person with id already exists: " + person.getId());
+		}
+		return repository.save(person);
+	}
+
 	public boolean existsById(int id) {
 		return repository.existsById(id);
 	}

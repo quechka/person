@@ -26,6 +26,13 @@ public class LocationService {
 	@Value("${weather.service.url}")
 	private String weatherServiceUrl;
 
+	public Object findLocations(String name) {
+		if (name != null) {
+			return findByName(name);
+		}
+		return findAll();
+	}
+
 	public List<Location> findAll() {
 		List<Location> locations = new ArrayList<>();
 		repository.findAll().forEach(locations::add);

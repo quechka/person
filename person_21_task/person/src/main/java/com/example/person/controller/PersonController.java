@@ -43,10 +43,7 @@ public class PersonController {
 
 	@PostMapping
 	public ResponseEntity<Person> addPerson(@RequestBody Person person) {
-		if (person.getId() != 0 && personService.existsById(person.getId())) {
-			return ResponseEntity.badRequest().build();
-		}
-		Person saved = personService.save(person);
+		Person saved = personService.addPerson(person);
 		return ResponseEntity.status(HttpStatus.CREATED).body(saved);
 	}
 }
