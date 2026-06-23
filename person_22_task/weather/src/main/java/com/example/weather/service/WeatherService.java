@@ -3,7 +3,10 @@ package com.example.weather.service;
 import com.example.weather.model.Root;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
@@ -11,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -21,13 +25,34 @@ public class WeatherService {
 
 	private final ConcurrentHashMap<String, CachedWeather> cache = new ConcurrentHashMap<>();
 
+	@Autowired
+	private RestTemplate restTemplate;
+
 	@Value("${appId}")
 	private String appId;
 
 	@Value("${url.weather}")
 	private String weatherUrl;
 
-	public Root getWeather(double lat, double lon, RestTemplate restTemplate) {
+	public ResponseEntity<?> getWeather(double lat, double lon) {
+		try {
+			Root root = fetchWeather(lat, lon);
+			if (root == null) {
+				return ResponseEntity.notFound().build();
+			}
+			return ResponseEntity.ok(root);
+		} catch (HttpClientErrorException.Unauthorized e) {
+			return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(Map.of(
+					"error", "Invalid API key",
+					"message", "Check appId in application.properties. New keys activate within 2 hours after registration."));
+		} catch (RestClientException e) {
+			return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(Map.of(
+					"error", "Weather API error",
+					"message", e.getMessage()));
+		}
+	}
+
+	private Root fetchWeather(double lat, double lon) {
 		String key = lat + ":" + lon;
 		CachedWeather cached = cache.get(key);
 

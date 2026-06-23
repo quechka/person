@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/location")
 public class LocationController {
@@ -24,10 +22,7 @@ public class LocationController {
 
 	@GetMapping
 	public Object getLocations(@RequestParam(required = false) String name) {
-		if (name != null) {
-			return locationService.findByName(name);
-		}
-		return locationService.findAll();
+		return locationService.findLocations(name);
 	}
 
 	@PostMapping

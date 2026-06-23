@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -31,47 +30,29 @@ public class PersonController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<Person> findById(@PathVariable int id) {
-		try {
-			return new ResponseEntity<>(personService.getById(id), HttpStatus.OK);
-		} catch (ResponseStatusException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+	public Person findById(@PathVariable int id) {
+		return personService.getById(id);
 	}
 
 	@PostMapping
 	public ResponseEntity<Person> save(@RequestBody Person person) {
-		if (person.getId() != 0 && personService.existsById(person.getId())) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		}
-		return new ResponseEntity<>(personService.save(person), HttpStatus.CREATED);
+		Person saved = personService.addPerson(person);
+		return ResponseEntity.status(HttpStatus.CREATED).body(saved);
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<Person> update(@PathVariable int id, @RequestBody Person person) {
-		try {
-			return new ResponseEntity<>(personService.update(id, person), HttpStatus.OK);
-		} catch (ResponseStatusException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+	public Person update(@PathVariable int id, @RequestBody Person person) {
+		return personService.update(id, person);
 	}
 
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> delete(@PathVariable int id) {
-		try {
-			personService.delete(id);
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		} catch (ResponseStatusException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+		personService.delete(id);
+		return ResponseEntity.noContent().build();
 	}
 
 	@GetMapping("/{id}/weather")
-	public ResponseEntity<Weather> getWeather(@PathVariable int id) {
-		try {
-			return new ResponseEntity<>(personService.getWeather(id), HttpStatus.OK);
-		} catch (ResponseStatusException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+	public Weather getWeather(@PathVariable int id) {
+		return personService.getWeather(id);
 	}
 }
